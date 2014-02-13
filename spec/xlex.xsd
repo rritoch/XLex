@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema 
+
+    targetNamespace="urn:vnetpublishing:xlex" 
+    xmlns:tns="urn:vnetpublishing:xlex"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!--  Simple Types -->
+
+    <xs:simpleType name="XLexReadModeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="char"/>
+            <xs:enumeration value="bit"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="XLexCharReadModeType">
+        <xs:restriction base="tns:XLexReadModeType">
+            <xs:enumeration value="char"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="XLexBitReadModeType">
+        <xs:restriction base="tns:XLexReadModeType">
+            <xs:enumeration value="bit"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="XLexBitArrayType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([0-1])*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="XLexReadModeSizeType">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!--  Groups -->
+
+    <xs:group name="XLexGroups">
+        <xs:choice>
+            <xs:element ref="tns:byteGroup" />
+            <xs:element ref="tns:charGroup" />
+        </xs:choice>
+    </xs:group>
+    
+    <xs:group name="XLexMatchGroup">
+        <xs:choice>
+            <xs:element ref="tns:matchByte" />
+            <xs:element ref="tns:matchByteEnd" />
+            <xs:element ref="tns:matchChar" />
+            <xs:element ref="tns:matchCharEnd" />
+        </xs:choice>
+    </xs:group>
+    
+    <xs:group name="XLexActionInstruction">
+        <xs:choice>
+            <xs:element ref="tns:parse" />
+            <xs:element ref="tns:clearBuffer" />
+            <xs:element ref="tns:copyTo" />
+            <xs:element ref="tns:setTool" />
+            <xs:element ref="tns:setReadMode" />
+            <xs:element ref="tns:setCharMode" />
+            <xs:element ref="tns:setBitMode" />
+            <xs:element ref="tns:error" />
+            <xs:element ref="tns:setVar" />
+            <xs:element ref="tns:addVar" />
+        </xs:choice>
+    </xs:group>
+    
+    <xs:group name="XLexWriteGroup">
+        <xs:choice>
+            <xs:element ref="tns:writeBuffer" />
+            <xs:element ref="tns:writeVar" />
+        </xs:choice>
+    </xs:group>
+    
+    <xs:group name="XLexInstruction">
+        <xs:choice>
+            <xs:group ref="tns:XLexActionInstruction" />
+            <xs:group ref="tns:XLexWriteGroup" />
+        </xs:choice>
+    </xs:group>
+
+    <xs:group name="XLexElementContentGroup">
+        <xs:choice>
+            <xs:group ref="tns:XLexInstruction" />
+            <xs:element ref="tns:element" />
+        </xs:choice>
+    </xs:group>
+    
+    
+    <!-- Complex Types -->
+
+    
+    <xs:complexType name="XLexDocType">
+        <xs:sequence>
+            <xs:element ref="tns:import" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="tns:storage" minOccurs="0" maxOccurs="1" />
+            <xs:element ref="tns:groups" minOccurs="0" maxOccurs="1" />
+            <xs:element ref="tns:rules" minOccurs="0" maxOccurs="1" />
+            <xs:element ref="tns:tools" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+        <xs:attribute name="targetNamespace" type="xs:anyURI" />
+    </xs:complexType>
+
+
+
+
+    <xs:complexType name="XLexGroupType">
+        <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexReadCharGroupType">
+        <xs:complexContent>
+            <xs:extension base="tns:XLexGroupType">
+                <xs:sequence>
+                    <xs:element ref="tns:char" maxOccurs="unbounded" minOccurs="1" />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="XLexReadByteGroupType">
+        <xs:complexContent>
+            <xs:extension base="tns:XLexGroupType">
+                <xs:sequence>
+                    <xs:element ref="tns:byte" maxOccurs="unbounded" minOccurs="1" />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="XLexSetToolType">
+        <xs:attribute name="tool" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="XLexSetReadModeType"  abstract="true">
+        <xs:attribute name="class" type="tns:XLexReadModeType" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexBaseSetCharReadModeType" abstract="true">
+        <xs:complexContent>
+            <xs:extension base="tns:XLexSetReadModeType">
+                <xs:attribute name="size" type="tns:XLexReadModeSizeType" use="prohibited" />
+                <xs:attribute name="encoding" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="CharMode">
+        <xs:complexContent>
+            <xs:restriction base="tns:XLexBaseSetCharReadModeType">
+                <xs:attribute name="size" type="tns:XLexReadModeSizeType" use="prohibited" />
+                <xs:attribute name="encoding" type="xs:string" use="required"/>
+                <xs:attribute name="class" type="tns:XLexCharReadModeType" use="optional" default="char" />
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="XLexBaseSetBitReadModeType" abstract="true">
+        <xs:complexContent>
+            <xs:extension base="tns:XLexSetReadModeType">
+                <xs:attribute name="size" type="tns:XLexReadModeSizeType" use="required" />
+                <xs:attribute name="encoding" type="xs:string" use="prohibited"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="BitMode">
+        <xs:complexContent>
+            <xs:restriction base="tns:XLexBaseSetBitReadModeType">
+                <xs:attribute name="size" type="tns:XLexReadModeSizeType" use="required" />
+                <xs:attribute name="encoding" type="xs:string" use="prohibited"/>
+                <xs:attribute name="class" type="tns:XLexBitReadModeType" use="optional" default="bit"/>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+
+    
+    <xs:complexType name="XLexVarType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="value" type="xs:string" /> 
+    </xs:complexType>
+    
+    <xs:complexType name="XLexCopyToType">
+        <xs:attribute name="var" type="xs:string" /> 
+    </xs:complexType>
+   
+   
+    <xs:complexType name="XLexToolTableType">
+        <xs:sequence>
+            <xs:group ref="tns:XLexMatchGroup" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexWriteVarType">
+        <xs:attribute name="var" type="xs:string" /> 
+    </xs:complexType>
+    
+    
+    <xs:complexType name="XLexElementConstructorType">
+        <xs:sequence>
+            <xs:group ref="tns:XLexElementContentGroup" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="tns:attribute" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexAttributeType">
+        <xs:sequence>
+            <xs:group ref="tns:XLexInstruction" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexMatchGroupType">
+        <xs:sequence>
+           <xs:group ref="tns:XLexActionInstruction" minOccurs="0" maxOccurs="unbounded" />
+           <xs:element ref="tns:shift" minOccurs="0" maxOccurs="1"/>
+           <xs:element ref="tns:reduce" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="group" type="xs:string" use="optional" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexMatchEndType">
+        <xs:sequence>
+           <xs:group ref="tns:XLexActionInstruction" minOccurs="0" maxOccurs="unbounded" />
+           <xs:element ref="tns:shift" minOccurs="0" maxOccurs="1"/>
+           <xs:element ref="tns:reduce" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="XLexRuleType">
+        <xs:sequence>
+           <xs:group ref="tns:XLexActionInstruction" minOccurs="0" maxOccurs="unbounded"/>
+           <xs:element ref="tns:element" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:token" use="required"/>
+    </xs:complexType>
+    
+
+    
+    <xs:complexType name="XLexByteListType">
+        <xs:sequence>
+            <xs:element ref="tns:byte" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexCharListType">
+        <xs:sequence>
+            <xs:element ref="tns:char" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexReduceType">
+        <xs:attribute name="rule" type="xs:string" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexShiftType">
+    </xs:complexType>
+
+    <xs:complexType name="XLexErrorType" mixed="true">
+        <xs:sequence>
+            <xs:group ref="tns:XLexWriteGroup" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="XLexSetVarType">
+        <xs:attribute name="var" use="required" type="xs:string" />
+        <xs:attribute name="value" use="required" type="xs:string" />
+    </xs:complexType>
+    
+    
+    <xs:complexType name="XLexAddVarType">
+        <xs:attribute name="var" use="required" type="xs:string" />
+        <xs:attribute name="value" use="required" type="xs:integer" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexParseType">
+        <xs:complexContent>
+            <xs:extension base="tns:XLexSetReadModeType">
+                <xs:attribute name="tool" type="xs:token" use="required" />
+                <xs:attribute name="src_encref" type="xs:token" use="optional" />
+                <xs:attribute name="size" type="xs:int" use="optional" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="CharModeParse">
+        <xs:complexContent>
+            <xs:restriction base="tns:XLexParseType">
+                <xs:attribute name="tool" type="xs:token" use="required" />
+                <xs:attribute name="class" type="tns:XLexCharReadModeType" use="optional" default="char"/>
+                <xs:attribute name="src_encref" type="xs:token" use="required" />
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="BitModeParse">
+        <xs:complexContent>
+            <xs:restriction base="tns:XLexParseType">
+                <xs:attribute name="tool" type="xs:token" use="required" />
+                <xs:attribute name="class" type="tns:XLexBitReadModeType" use="optional" default="bit"/>
+                <xs:attribute name="size" type="xs:int" use="required" />
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <!--  Root Types -->
+
+    <xs:complexType name="XLexImportType">
+        <xs:attribute name="src" type="xs:anyURI" use="required" />
+        <xs:attribute name="targetNamespace" type="xs:anyURI" />
+    </xs:complexType>
+    
+    <xs:complexType name="XLexStorageType">
+       <xs:sequence>
+           <xs:element ref="tns:var" minOccurs="0" maxOccurs="unbounded"/>
+       </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="XLexGroupListType">
+		<xs:sequence>
+			<xs:group ref="tns:XLexGroups" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="XLexRuleListType">
+        <xs:sequence>
+           <xs:element ref="tns:rule" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="XLexToolListType">
+        <xs:sequence>
+            <xs:element ref="tns:tool" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!--  Document ELements -->
+
+    <xs:element name="xlex" type="tns:XLexDocType" />
+    <xs:element name="import" type="tns:XLexImportType" />
+    <xs:element name="storage" type="tns:XLexStorageType" />
+    <xs:element name="groups" type="tns:XLexGroupListType" />
+    <xs:element name="rules" type="tns:XLexRuleListType" />
+    <xs:element name="tools" type="tns:XLexToolListType" />
+
+    <!--  Action Elements -->
+
+    <xs:element name="parse" type="tns:XLexParseType" />
+    <xs:element name="clearBuffer" type="xs:string" />
+    <xs:element name="copyTo" type="tns:XLexCopyToType"/>
+    <xs:element name="setCharMode" type="tns:CharMode" />
+    <xs:element name="setBitMode" type="tns:BitMode" />
+    <xs:element name="setReadMode" type="tns:XLexSetReadModeType" />
+    <xs:element name="setVar" type="tns:XLexSetVarType" />
+    <xs:element name="addVar" type="tns:XLexAddVarType" />
+    <xs:element name="setTool" type="tns:XLexSetToolType"/>
+    <xs:element name="writeVar" type="tns:XLexWriteVarType"/>
+    <xs:element name="writeBuffer" type="xs:string" />
+    <xs:element name="element" type="tns:XLexElementConstructorType" />
+    <xs:element name="attribute" type="tns:XLexAttributeType" />
+    <xs:element name="error" type="tns:XLexErrorType" />
+    
+    <!--  Special Actions -->
+
+    <xs:element name="shift" type="tns:XLexShiftType" />
+    <xs:element name="reduce" type="tns:XLexReduceType" />
+
+    <!-- Table Elements -->
+
+    <xs:element name="rule" type="tns:XLexRuleType" />
+    <xs:element name="byteGroup" type="tns:XLexByteListType"/>
+    <xs:element name="charGroup" type="tns:XLexCharListType"/>
+    <xs:element name="matchChar" type="tns:XLexMatchGroupType" />
+    <xs:element name="matchByte" type="tns:XLexMatchGroupType" />
+    <xs:element name="matchByteEnd" type="tns:XLexMatchEndType" />
+    <xs:element name="matchCharEnd" type="tns:XLexMatchEndType" />
+    <xs:element name="tool" type="tns:XLexToolTableType" />
+    
+    <!-- Data Elements -->
+
+    <xs:element name="var" type="tns:XLexVarType" />
+    <xs:element name="char" type="xs:integer" />
+    <xs:element name="byte" type="tns:XLexBitArrayType" />
+
+</xs:schema> 

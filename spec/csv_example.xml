@@ -1,0 +1,89 @@
+<xlex:xlex 
+	targetNamespace="urn:csv" 
+	xmlns:xlex="urn:vnetpublishing:xlex"  
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:vnetpublishing:xlex
+							  xlex.xsd"
+	>
+	<xlex:storage>
+	    <xlex:var name="encoding" value="utf-8" />
+		<xlex:var name="lineNumber" value="0" />
+		<xlex:var name="colNumber" value="0" />
+		<xlex:var name="defaultNamespace" value="urn:csv" />
+	</xlex:storage>
+	
+	<xlex:groups>
+	    <xlex:charGroup name="doubleQuote">
+		    <xlex:char>34<!-- " --></xlex:char>
+	    </xlex:charGroup>
+	
+		<xlex:charGroup name="cama">
+			<xlex:char>44<!-- , --></xlex:char>
+		</xlex:charGroup>
+	
+		<xlex:charGroup name="NL">
+			<xlex:char>10<!-- \n --></xlex:char>
+		</xlex:charGroup>
+	
+		<xlex:charGroup name="CR">
+			<xlex:char>13<!-- \r --></xlex:char>
+		</xlex:charGroup>
+	
+	</xlex:groups>
+	
+	<xlex:rules>
+		<xlex:rule name="__start__">
+	 		<xlex:element name="csvData">
+		    	<xlex:setVar var="lineNumber" value="1" />
+		    	<xlex:parse tool="new_row_or_end" xsi:type="xlex:CharModeParse" src_encref="encoding" />
+		    	<xlex:attribute name="xmlns">
+		        	<xlex:writeVar var="defaultNamespace" />
+		    	</xlex:attribute>
+	    	</xlex:element>
+		</xlex:rule>
+	</xlex:rules>
+	
+	<xlex:tools>
+		<!--  Assert New Row Or End -->
+	 
+	 	<xlex:tool name="assert_new_row">
+			<xlex:matchChar group="NL">
+				<xlex:addVar var="lineNumber" value="1" />
+				<xlex:setVar var="colNumber" value="0" />
+				<xlex:setTool tool="new_row_or_end" />
+				<xlex:reduce rule="y" />
+			</xlex:matchChar>
+	
+			<xlex:matchChar>
+				<xlex:error>Unexpected character on line <xlex:writeVar var="lineNumber" /> column <xlex:writeVar var="colNumber" /></xlex:error>
+			</xlex:matchChar>
+	 
+			<xlex:matchCharEnd>
+				 <!--  Nothing to do! -->
+			</xlex:matchCharEnd>
+		</xlex:tool>
+	
+
+	 
+		<!--  Default Handler -->
+	
+		<xlex:tool name="new_row_or_end">
+	    	<xlex:matchChar group="NL">
+		    	<!--  Ignore! -->
+		    	<xlex:reduce rule="flush"/>
+	    	</xlex:matchChar>
+	
+			<xlex:matchChar group="CR">
+				<!--  Ignore! -->
+				<xlex:addVar var="colNumber" value="1" />
+				<xlex:setTool tool="assert_new_row" />
+			</xlex:matchChar>
+	
+			<xlex:matchChar>
+				<xlex:setTool tool="skip_cell" />
+				<xlex:shift />
+			</xlex:matchChar>
+		</xlex:tool>
+	</xlex:tools>
+	
+</xlex:xlex>
