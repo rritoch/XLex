@@ -20,7 +20,7 @@ public class Context {
 	Node curNode;
 	DynamicInputStream is;
 	Context parent = null;
-	
+	StringBuilder sb = new StringBuilder();
 	
 	Context(Node curNode, DynamicInputStream is, Context parent) {
 		this.targetDoc = curNode.getOwnerDocument();
@@ -57,5 +57,13 @@ public class Context {
 
 	public Context createChildContext(Node n) {
 		return new Context(n, is, this);
+	}
+
+	public void shift(String s) {
+		sb.append(s);
+	}
+	
+	public String reduce() {
+		return sb.toString();
 	}
 }
