@@ -4,6 +4,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.vnetpublishing.java.xlex.Context;
+import com.vnetpublishing.java.xlex.XLexException;
 import com.vnetpublishing.java.xlex.XLexType;
 
 public class XLexWriteGroup extends XLexType 
@@ -57,12 +58,12 @@ public class XLexWriteGroup extends XLexType
 	}
 
 	@Override
-	public void execute(Context ctx) {
+	public void execute(Context ctx) throws XLexException {
 		item.executeWriteGroup(ctx);
 	}
 
 	@Override
-	public void executeContentGroup(Context ctx) {
+	public void executeContentGroup(Context ctx) throws XLexException {
 		execute(ctx);
 	}
 

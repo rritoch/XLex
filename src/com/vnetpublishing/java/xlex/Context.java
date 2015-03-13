@@ -20,7 +20,7 @@ public class Context {
 	Node curNode;
 	DynamicInputStream is;
 	Context parent = null;
-	StringBuilder sb = new StringBuilder();
+	StringBuilder sb = new StringBuilder("");
 	
 	Context(Node curNode, DynamicInputStream is, Context parent) {
 		this.targetDoc = curNode.getOwnerDocument();
@@ -33,6 +33,7 @@ public class Context {
 		URL url = uri.toURL();
 		is = new DynamicInputStream(url.openStream());
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
 		DocumentBuilder builder = dbf.newDocumentBuilder();
 		targetDoc = builder.newDocument();
 		curNode = targetDoc;
@@ -65,5 +66,9 @@ public class Context {
 	
 	public String reduce() {
 		return sb.toString();
+	}
+
+	public void write(String s) {
+		sb.append(s);
 	}
 }

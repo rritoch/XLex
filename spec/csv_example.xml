@@ -36,7 +36,7 @@
 	 		<xlex:element name="csvData">
 		    	<xlex:setVar var="lineNumber" value="1" />
 		    	<xlex:parse tool="new_row_or_end" xsi:type="xlex:CharModeParse" src_encref="encoding" />
-		    	<xlex:attribute name="xmlns">
+		    	<xlex:attribute name="foo">
 		        	<xlex:writeVar var="defaultNamespace" />
 		    	</xlex:attribute>
 	    	</xlex:element>

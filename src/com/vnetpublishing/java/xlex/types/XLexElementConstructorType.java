@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.vnetpublishing.java.xlex.Context;
+import com.vnetpublishing.java.xlex.XLexException;
 import com.vnetpublishing.java.xlex.XLexType;
 
 public class XLexElementConstructorType extends XLexType
@@ -14,6 +16,7 @@ public class XLexElementConstructorType extends XLexType
 {
 
 	String name;
+	String namespace = null;
 	
 	List<XLexElementContentGroup> content = new ArrayList<XLexElementContentGroup>();
 	List<XLexAttributeType> attributes = new ArrayList<XLexAttributeType>();
@@ -24,9 +27,15 @@ public class XLexElementConstructorType extends XLexType
     	Node nameNode = node.getAttributes().getNamedItem("name");
     	
     	if (null == nameNode) {
-    		throw new XLexInvalidDocumentException("Anonymous rule found in XLex document");
+    		throw new XLexInvalidDocumentException("Anonymous element found in XLex document");
     	}
     	name = nameNode.getNodeValue();
+    	
+    	Node namespaceNode = node.getAttributes().getNamedItem("namespace");
+    	
+    	if (namespaceNode != null) {
+    		namespace = namespaceNode.getNodeValue();
+    	}
     	
     	Node child = node.getFirstChild();
     	
@@ -59,9 +68,20 @@ public class XLexElementConstructorType extends XLexType
 		
 	}
 
-	public void reduce(Context ctx) {
-		Node n = ctx.getTargetDocument().createElementNS(ownerDocument.getTargetNamespace(), name);
-		ctx.getCurrentNode().appendChild(n);
+	public void reduce(Context ctx) throws XLexException {
+		
+		Node n;
+		
+		
+		Iterator<XLexAttributeType> ai;
+		
+
+		
+		if (namespace == null) {
+			n = ctx.getTargetDocument().createElementNS(ownerDocument.getTargetNamespace(), name);
+		} else {
+			n = ctx.getTargetDocument().createElementNS(namespace,name);
+		}
 		
 		Context cctx = ctx.createChildContext(n);
 		
@@ -74,18 +94,16 @@ public class XLexElementConstructorType extends XLexType
 
 		// Apply Attributes
 		
-		Iterator<XLexAttributeType> ai = attributes.iterator();
+		ai = attributes.iterator();
 		while(ai.hasNext()) {
 			ai.next().reduce(cctx);
 		}
 
-		
-
-		
+		ctx.getCurrentNode().appendChild(n);
 	}
 
 	@Override
-	public void executeContentGroup(Context ctx) {
+	public void executeContentGroup(Context ctx) throws XLexException {
 		reduce(ctx);
 	}
 }

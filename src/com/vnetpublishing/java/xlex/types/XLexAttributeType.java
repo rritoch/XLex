@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.vnetpublishing.java.xlex.Context;
+import com.vnetpublishing.java.xlex.XLexException;
 import com.vnetpublishing.java.xlex.XLexType;
 
 public class XLexAttributeType extends XLexType
@@ -38,18 +39,26 @@ public class XLexAttributeType extends XLexType
 	}
 
 	
-	public void reduce(Context ctx) {
+	public void reduce(Context ctx) throws XLexException {
+		
+
+			
 		Element node = (Element)ctx.getCurrentNode();
-		
 		Context cctx = ctx.createChildContext(node);
-		
 		Iterator<XLexInstruction> i = instructions.iterator();
-		
+		//System.out.println(String.format("Attribute: has context %s",cctx.toString()));
 		while(i.hasNext()) {
 			i.next().reduce(cctx);
 		}
+		String s = cctx.reduce();
+		//System.out.println(String.format("Setting attribute %s to %s on %s",name,s,node.getNodeName()));
+		if ("xmlns".equals(name)) {
+			throw new XLexException("Attempt to set namespace with attribute");
+		} else {
+			node.setAttribute(name,s);
+		}
 		
-		node.setAttribute(name,cctx.reduce());
 	}
+
 
 }

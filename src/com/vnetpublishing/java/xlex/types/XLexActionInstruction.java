@@ -3,6 +3,7 @@ package com.vnetpublishing.java.xlex.types;
 import org.w3c.dom.Node;
 
 import com.vnetpublishing.java.xlex.Context;
+import com.vnetpublishing.java.xlex.XLexException;
 import com.vnetpublishing.java.xlex.XLexType;
 
 public class XLexActionInstruction 
@@ -34,7 +35,7 @@ public class XLexActionInstruction
     	}
 	}
 
-	public void execute(Context ctx) {
+	public void execute(Context ctx) throws XLexException {
 		instruction.execute(ctx);
 	}
 

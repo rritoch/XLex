@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -158,6 +159,8 @@ public class XLexDocType
     }
     
     public String getTargetNamespace() {
-    	return doc.getDocumentElement().getAttribute("targetNamepsace");
+    	Element el = doc.getDocumentElement();
+    	Node n = el.getAttributes().getNamedItem("targetNamespace");
+    	return n == null ? null : n.getNodeValue();
     }
 }

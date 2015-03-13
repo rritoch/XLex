@@ -7,6 +7,7 @@ import java.util.List;
 import org.w3c.dom.Node;
 
 import com.vnetpublishing.java.xlex.Context;
+import com.vnetpublishing.java.xlex.XLexException;
 
 public class XLexRuleType 
 {
@@ -62,7 +63,7 @@ public class XLexRuleType
     }
 
 
-	public void reduce(Context ctx) {
+	public void reduce(Context ctx) throws XLexException {
 		
 		// Run action instructions
 		Iterator<XLexActionInstruction> i = instructions.iterator();
