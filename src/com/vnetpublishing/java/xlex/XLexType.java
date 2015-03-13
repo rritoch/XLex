@@ -16,9 +16,13 @@ public class XLexType
 		this.domNode = domNode;
 	}
 	
-	XLexDocType getOwnerDocument() 
+	public XLexDocType getOwnerDocument() 
 	{
 		return ownerDocument;
+	}
+	
+	public Node getNode() {
+		return domNode;
 	}
 	
 }

@@ -156,4 +156,8 @@ public class XLexDocType
     {
     	return tools;
     }
+    
+    public String getTargetNamespace() {
+    	return doc.getDocumentElement().getAttribute("targetNamepsace");
+    }
 }

@@ -13,7 +13,7 @@ public class XLexRuleType
 	
 	ArrayList<XLexActionInstruction> instructions;
 	
-	XLexElementConstructorType element;
+	XLexElementConstructorType element = null;
 	String name;
 	
     protected XLexRuleType(Node node,XLexDocType parent) 
@@ -39,7 +39,7 @@ public class XLexRuleType
     			    if ("element".equals(child.getLocalName()) && 
     			    	XLexDocType.NamespaceURI.equals(child.getNamespaceURI())
     			    	) {
-    			    	element = new XLexElementConstructorType(child,document);
+    			    	element = new XLexElementConstructorType(document,child);
     			    	mode = 2;
     			    } else {
     			    	instructions.add(new XLexActionInstruction(child,document));
@@ -62,6 +62,14 @@ public class XLexRuleType
 
 	public void reduce(Context ctx) {
 		// TODO Auto-generated method stub
+		
+		// Run action instructions
+		
+		// Run element
+		
+		if (element != null) {
+			element.reduce(ctx);
+		}
 		
 	}
 }

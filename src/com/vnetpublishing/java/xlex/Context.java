@@ -17,10 +17,17 @@ import com.vnetpublishing.java.io.DynamicInputStream;
 public class Context {
 
 	Document targetDoc;
-	
 	Node curNode;
-	
 	DynamicInputStream is;
+	Context parent = null;
+	
+	
+	Context(Node curNode, DynamicInputStream is, Context parent) {
+		this.targetDoc = curNode.getOwnerDocument();
+		this.curNode =curNode;
+		this.is = is;
+		this.parent = parent;
+	}
 	
 	public Context(URI uri) throws ParserConfigurationException, IOException {
 		URL url = uri.toURL();
@@ -42,5 +49,13 @@ public class Context {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public Node getCurrentNode() {
+		return curNode;
+	}
+
+	public Context createChildContext(Node n) {
+		return new Context(n, is, this);
 	}
 }
