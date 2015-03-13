@@ -1,6 +1,7 @@
 package com.vnetpublishing.java.xlex.types;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -12,7 +13,7 @@ import com.vnetpublishing.java.xlex.XLexType;
 public class XLexAttributeType extends XLexType
 {
 
-	List<XLexActionInstruction> instructions = new ArrayList<XLexActionInstruction>();
+	List<XLexInstruction> instructions = new ArrayList<XLexInstruction>();
 	String name;
 
 	public XLexAttributeType(XLexDocType document, Node node) throws XLexInvalidDocumentException {
@@ -29,7 +30,7 @@ public class XLexAttributeType extends XLexType
     	
     	while(child != null) {
     		if (child.getNodeType() == Node.ELEMENT_NODE) {
-    			instructions.add(new XLexActionInstruction(child,document));
+    			instructions.add(new XLexInstruction(document,child));
     		}
     		child = child.getNextSibling();
     	}
@@ -42,7 +43,11 @@ public class XLexAttributeType extends XLexType
 		
 		Context cctx = ctx.createChildContext(node);
 		
-		//TODO: Run commands
+		Iterator<XLexInstruction> i = instructions.iterator();
+		
+		while(i.hasNext()) {
+			i.next().reduce(cctx);
+		}
 		
 		node.setAttribute(name,cctx.reduce());
 	}

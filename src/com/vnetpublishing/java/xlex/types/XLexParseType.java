@@ -2,10 +2,12 @@ package com.vnetpublishing.java.xlex.types;
 
 import org.w3c.dom.Node;
 
+import com.vnetpublishing.java.xlex.Context;
 import com.vnetpublishing.java.xlex.XLexType;
 
 public class XLexParseType 
 	extends XLexType
+	implements IXLexElementContentGroup
 {
 
 	String toolProperty;
@@ -25,6 +27,13 @@ public class XLexParseType
 		tmpNode = domNode.getAttributes().getNamedItem("size");
 		sizeProperty = tmpNode == null ? null : Integer.parseInt(tmpNode.getNodeValue());
 		
+	}
+
+
+	@Override
+	public void executeContentGroup(Context ctx) {
+		// TODO Auto-generated method stub
+		System.out.println("XLexParseType: FixMe!");
 	}
 	
 

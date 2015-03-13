@@ -1,6 +1,8 @@
 package com.vnetpublishing.java.xlex.types;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.w3c.dom.Node;
 
@@ -11,7 +13,7 @@ public class XLexRuleType
 	XLexDocType document;
 	Node node;
 	
-	ArrayList<XLexActionInstruction> instructions;
+	List<XLexActionInstruction> instructions = new ArrayList<XLexActionInstruction>();
 	
 	XLexElementConstructorType element = null;
 	String name;
@@ -42,7 +44,7 @@ public class XLexRuleType
     			    	element = new XLexElementConstructorType(document,child);
     			    	mode = 2;
     			    } else {
-    			    	instructions.add(new XLexActionInstruction(child,document));
+    			    	instructions.add(new XLexActionInstruction(document,child));
     			    }
     			} else {
     				throw new XLexInvalidDocumentException(String.format("Unexpected element %s after element constructor",child.getNodeName()));
@@ -61,9 +63,13 @@ public class XLexRuleType
 
 
 	public void reduce(Context ctx) {
-		// TODO Auto-generated method stub
 		
 		// Run action instructions
+		Iterator<XLexActionInstruction> i = instructions.iterator();
+		
+		while(i.hasNext()) {
+			i.next().execute(ctx);
+		}
 		
 		// Run element
 		

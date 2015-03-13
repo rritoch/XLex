@@ -5,17 +5,18 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.Element;
 
 import com.vnetpublishing.java.xlex.Context;
 import com.vnetpublishing.java.xlex.XLexType;
 
 public class XLexElementConstructorType extends XLexType
+	implements IXLexElementContentGroup
 {
 
 	String name;
 	
-	List<XLexElementConstructorType> elements = new ArrayList<XLexElementConstructorType>();
+	List<XLexElementContentGroup> content = new ArrayList<XLexElementContentGroup>();
+	List<XLexAttributeType> attributes = new ArrayList<XLexAttributeType>();
 	
 	public XLexElementConstructorType(XLexDocType document, Node node) throws XLexInvalidDocumentException {
 		super(document,node);
@@ -34,21 +35,19 @@ public class XLexElementConstructorType extends XLexType
     	while(child != null) {
     		if (child.getNodeType() == Node.ELEMENT_NODE) {
     			if (mode == 1) {
-    			    if ("element".equals(child.getLocalName()) && 
+    			    if ("attribute".equals(child.getLocalName()) && 
     			    	XLexDocType.NamespaceURI.equals(child.getNamespaceURI())
     			    	) {
-    			    	elements.add(new XLexElementConstructorType(document,child));
+    			    	attributes.add(new XLexAttributeType(document,child));
     			    	mode = 2;
     			    } else {
-    			    	//TODO: Handle XLexElementContentGroup
-    			    	
-    			    	//instructions.add(new XLexActionInstruction(child,document));
+    			    	content.add(new XLexElementContentGroup(document,child));
     			    }
     			} else if (mode == 2) {
     			    if ("attribute".equals(child.getLocalName()) && 
         			    	XLexDocType.NamespaceURI.equals(child.getNamespaceURI())
         			    	) {
-        			    	elements.add(new XLexElementConstructorType(document,child));
+    			    	attributes.add(new XLexAttributeType(document,child));
         			} else {
         				throw new XLexInvalidDocumentException(String.format("Unexpected element %s after attribute list",child.getNodeName()));
         			}
@@ -66,17 +65,27 @@ public class XLexElementConstructorType extends XLexType
 		
 		Context cctx = ctx.createChildContext(n);
 		
-		//TODO: Run instructions...
+		//TODO: Run content...
 		
-		/*
-		Iterator<XLexElementConstructorType> i = elements.iterator();
-		while(i.hasNext()) {
-			i.next().reduce(cctx);
+		Iterator<XLexElementContentGroup> ci = content.iterator();
+		while(ci.hasNext()) {
+			ci.next().execute(cctx);
 		}
-		
-		*/
-		
+
 		// Apply Attributes
 		
+		Iterator<XLexAttributeType> ai = attributes.iterator();
+		while(ai.hasNext()) {
+			ai.next().reduce(cctx);
+		}
+
+		
+
+		
+	}
+
+	@Override
+	public void executeContentGroup(Context ctx) {
+		reduce(ctx);
 	}
 }
